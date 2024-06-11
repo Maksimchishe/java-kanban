@@ -22,7 +22,7 @@ public class Main {
         System.out.println();
 
         System.out.println("Тест1.2: Обновление Task");
-        taskManager.updateTask(new Task(1, "Обновленная задача", "Обновленное пояснение", Status.NEW));
+        taskManager.updateTask(new Task(0, "Обновленная задача", "Обновленное пояснение", Status.NEW));
         System.out.println("Проверка обновленнго Task в Map: " + taskManager.getAllTasks());
         System.out.println();
 

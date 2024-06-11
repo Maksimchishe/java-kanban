@@ -13,7 +13,7 @@ public class TaskManager {
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subTasks = new HashMap<>();
 
-    private int getNextId() { // Формирование нового Id
+    private int getNextId() {
         return id++;
     }
 
