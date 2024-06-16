@@ -1,5 +1,6 @@
 package ru.practicum.task_trecker;
 
+import ru.practicum.task_trecker.manager.Managers;
 import ru.practicum.task_trecker.manager.TaskManager;
 import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Status;
@@ -7,44 +8,52 @@ import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
 
 public class Main {
+
     public static void main(String[] args) {
-        test();
+        testAll(Managers.getDefault());
     }
 
-    private static void test() {
-        TaskManager taskManager = new TaskManager();
-
+    private static void testAll(TaskManager taskManager) {
 ///////////////////////////////////////////////////////TEST1//////////////////////////////////////////////////////////////
 
         System.out.println("Тест1.1: Создание Task");
-        taskManager.createTask(new Task("Задача", "Пояснение", Status.NEW));
-        System.out.println("Проверка созданного Task: " + taskManager.getAllTasks());
+        Task task = taskManager.createTask(new Task("Задача", "Пояснение", Status.NEW));
+        System.out.println("Получение Task по id: " + taskManager.getTaskById(task.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
+        System.out.println("Список Task: " + taskManager.getAllTasks());
         System.out.println();
 
+
         System.out.println("Тест1.2: Обновление Task");
-        taskManager.updateTask(new Task(0, "Обновленная задача", "Обновленное пояснение", Status.NEW));
-        System.out.println("Проверка обновленнго Task в Map: " + taskManager.getAllTasks());
+        Task udateTask = taskManager.updateTask(new Task(task.getId(), "Обновленная задача", "Обновленное пояснение", Status.NEW));
+        System.out.println("Получение Task по id: " + taskManager.getTaskById(udateTask.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
+        System.out.println("Список Task: " + taskManager.getAllTasks());
         System.out.println();
 
         System.out.println("Тест1.3: Удаление Task");
-        System.out.println("При успешном удалении true: " + taskManager.deleteTaskById(0));
+        System.out.println("При успешном удалении true: " + taskManager.deleteTaskById(udateTask.getId()));
         System.out.println("Список Task: " + taskManager.getAllTasks());
         System.out.println();
 
 ///////////////////////////////////////////////////////TEST2//////////////////////////////////////////////////////////////
 
         System.out.println("Тест2.1: Создание Epic");
-        taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
-        System.out.println("Проверка созданного Epic: " + taskManager.getAllEpics());
+        Epic epic = taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
+        System.out.println("Получение Epic по id: " + taskManager.getEpicById(epic.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
+        System.out.println("Список Epic: " + taskManager.getAllEpics());
         System.out.println();
 
         System.out.println("Тест2.2: Обновление Epic");
-        taskManager.updateEpic(new Epic(1, "Обновленная задача", "Обновленное пояснение", Status.NEW));
-        System.out.println("Проверка обновленнго Epic в Map: " + taskManager.getAllEpics());
+        Epic updateEpic = taskManager.updateEpic(new Epic(epic.getId(), "Обновленная задача", "Обновленное пояснение", Status.NEW));
+        System.out.println("Получение Epic по id: " + taskManager.getEpicById(updateEpic.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
+        System.out.println("Список Epic: " + taskManager.getAllEpics());
         System.out.println();
 
         System.out.println("Тест2.3: Удаление Epic");
-        System.out.println("При успешном удалении Epic true: " + taskManager.deleteEpicById(1));
+        System.out.println("При успешном удалении Epic true: " + taskManager.deleteEpicById(epic.getId()));
         System.out.println("Список Epic: " + taskManager.getAllEpics());
         System.out.println();
 
@@ -52,24 +61,30 @@ public class Main {
 
         System.out.println("Тест3.1: Создание SubTask");
         System.out.println("Создание тестового Epic");
-        taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
-        System.out.println("Проверка тестового epicTest: " + taskManager.getAllEpics());
+        Epic epic1 = taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
+        System.out.println("Список Epic: " + taskManager.getAllEpics());
+        System.out.println("Получение Epic по id: " + taskManager.getEpicById(epic1.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
         System.out.println("Создание SubTask");
-        taskManager.createSubTask(new Subtask(2, "Задача", "Пояснение", Status.NEW));
-        System.out.println("Проверка созданного SubTask: " + taskManager.getAllSubTasks());
-        System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(2));
+        Subtask subTask = taskManager.createSubTask(new Subtask(epic1.getId(), "Задача", "Пояснение", Status.NEW));
+        System.out.println("Получение SubTask по id: " + taskManager.getSubTaskById(subTask.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
+        System.out.println("Список SubTask: " + taskManager.getAllSubTasks());
+        System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(epic1.getId()));
         System.out.println();
 
 
         System.out.println("Тест3.2: Обновление SubTask");
-        taskManager.updateSubTask(new Subtask(3, 2, "Обновленная задача", "Обновленное пояснение", Status.NEW));
+        Subtask updateSubTask = taskManager.updateSubTask(new Subtask(subTask.getId(), epic1.getId(), "Обновленная задача", "Обновленное пояснение", Status.NEW));
+        System.out.println("Получение SubTask по id: " + taskManager.getSubTaskById(updateSubTask.getId()));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
         System.out.println("Список SubTask: " + taskManager.getAllSubTasks());
         System.out.println();
 
         System.out.println("Тест3.3: Удаление SubTask");
-        System.out.println("При успешном удалении subTask1 true: " + taskManager.deleteSubTaskById(3));
+        System.out.println("При успешном удалении subTask1 true: " + taskManager.deleteSubTaskById(subTask.getId()));
         System.out.println("Список SubTasks: " + taskManager.getAllSubTasks());
-        System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(2));
+        System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(epic1.getId()));
         System.out.println();
 
 ///////////////////////////////////////////////////////TEST4//////////////////////////////////////////////////////////////
@@ -88,6 +103,8 @@ public class Main {
         }
         System.out.println("Список SubTask: " + taskManager.getAllSubTasks());
         System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(2));
+        System.out.println("Получение SubTask по id: " + taskManager.getSubTaskById(4));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
         System.out.println("Удаление SubTask со статусом NEW: " + taskManager.deleteSubTaskById(4));
         System.out.println("Список SubTasks: " + taskManager.getAllSubTasks());
         System.out.println("Проверка статуса тестового epicTest DONE: " + taskManager.getAllEpics());
@@ -111,6 +128,8 @@ public class Main {
         }
         System.out.println("Список SubTask: " + taskManager.getAllSubTasks());
         System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(2));
+        System.out.println("Получение SubTask по id: " + taskManager.getSubTaskById(9));
+        System.out.println("Список просмотренных Task: " + taskManager.getTaskHistory());
         System.out.println("Удаление SubTask со статусом DONE: " + taskManager.deleteSubTaskById(9));
         System.out.println("Список SubTasks: " + taskManager.getAllSubTasks());
         System.out.println("Проверка статуса тестового epicTest NEW: " + taskManager.getAllEpics());
@@ -151,7 +170,7 @@ public class Main {
         for (int i = 0; i < 5; i++) {
             taskManager.createSubTask(new Subtask(2, "Наименование", " Пояснение", Status.NEW));
         }
-        System.out.println("Список SubTask: " + taskManager.getAllSubTasks());
+        System.out.println("Список SubTask по id: " + taskManager.getAllSubTaskById(2));
         System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(2));
         System.out.println("Удаление Epic true: " + taskManager.deleteEpicById(2));
         System.out.println("Список Epic: " + taskManager.getAllEpics());
@@ -182,7 +201,7 @@ public class Main {
         System.out.println("Создание SubTask");
         taskManager.createSubTask(new Subtask(26, "Наименование", "Пояснение", Status.NEW));
         System.out.println("Проверка ListId в Epic: " + taskManager.testIdEpic(26));
-        System.out.println("Вывод SubTask" + taskManager.getIdSubTasks(27));
+        System.out.println("Вывод SubTask" + taskManager.getAllSubTaskById(26));
         System.out.println("Удаление SubTask true: " + taskManager.deleteSubTaskById(27));
         System.out.println("Список SubTask: " + taskManager.getAllSubTasks());
         System.out.println("Удаление Epic true: " + taskManager.deleteEpicById(26));
@@ -238,4 +257,6 @@ public class Main {
 
 
     }
+
+
 }
