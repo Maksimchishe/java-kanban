@@ -119,9 +119,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T> void saveInHistory(T task) {
-        if (history.size() == 10) {
-            history.removeFirst();
-        }
         history.add((Task) task);
     }
 

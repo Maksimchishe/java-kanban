@@ -10,22 +10,14 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
+        if (memoryHistory.size() == 10) {
+            memoryHistory.removeFirst();
+        }
         memoryHistory.add(task);
-    }
-
-    @Override
-    public void removeFirst() {
-        memoryHistory.removeFirst();
-    }
-
-    @Override
-    public int size() {
-        return memoryHistory.size();
     }
 
     @Override
     public ArrayList<Task> getHistory() {
         return memoryHistory;
     }
-
 }

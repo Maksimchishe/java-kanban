@@ -8,10 +8,6 @@ public interface HistoryManager {
 
     void add(Task task);
 
-    void removeFirst();
-
-    int size();
-
     ArrayList<Task> getHistory();
 
 }
