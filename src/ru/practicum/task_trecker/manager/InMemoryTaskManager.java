@@ -65,6 +65,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task createTask(Task task) {
+        if (task == null) {
+            return null;
+        }
+
         task.setId(getNextId());
         Integer id = task.getId();
         tasks.put(id, task);
@@ -73,6 +77,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic createEpic(Epic epic) {
+        if (epic == null) {
+            return null;
+        }
         epic.setId(getNextId());
         Integer id = epic.getId();
         epics.put(id, epic);
@@ -81,6 +88,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubTask(Subtask subTask) {
+        if (subTask == null) {
+            return null;
+        }
+
         subTask.setId(getNextId());
         Integer id = subTask.getId();
         subTasks.put(id, subTask);
@@ -90,6 +101,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task updateTask(Task task) {
+        if (task == null) {
+            return null;
+        }
+
         Integer taskId = task.getId();
         if (tasks.containsKey(taskId)) {
             tasks.put(taskId, task);
@@ -99,6 +114,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic updateEpic(Epic epic) {
+        if (epic == null) {
+            return null;
+        }
+
         Integer epicId = epic.getId();
         if (epics.containsKey(epicId)) {
             epics.put(epicId, epic);
@@ -108,6 +127,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask updateSubTask(Subtask subTask) {
+        if (subTask == null) {
+            return null;
+        }
+
         Integer subTaskId = subTask.getId();
         Integer idEpic = subTask.getIdEpic();
         if (subTasks.containsKey(subTaskId)) {
@@ -119,6 +142,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T> void saveInHistory(T task) {
+        if (task == null) {
+            return;
+        }
+
         history.add((Task) task);
     }
 
@@ -129,18 +156,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(Integer id) {
+        if (id == null) {
+            return null;
+        }
+
         saveInHistory(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
     public Epic getEpicById(Integer id) {
+        if (id == null) {
+            return null;
+        }
+
         saveInHistory(epics.get(id));
         return epics.get(id);
     }
 
     @Override
     public Subtask getSubTaskById(Integer id) {
+        if (id == null) {
+            return null;
+        }
+
         saveInHistory(subTasks.get(id));
         return subTasks.get(id);
     }
@@ -240,6 +279,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public List<Integer> testIdEpic(Integer idEpic) {
+        if (idEpic == null) {
+            return null;
+        }
         return epics.get(idEpic).getListIdSubTask();
     }
 
