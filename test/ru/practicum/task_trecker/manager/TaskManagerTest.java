@@ -1,7 +1,6 @@
-package test;
+package ru.practicum.task_trecker.manager;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.task_trecker.manager.*;
 import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Status;
 import ru.practicum.task_trecker.task.Subtask;
