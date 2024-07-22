@@ -23,7 +23,7 @@ class TaskManagerTest {
     }
 
     @Test
-    void usesAllTypeClassTest() {
+    void inMemoryHistoryManagerUsesAllTypeClassTest() {
         TaskManager taskManager = Managers.getDefault();
 
         for (int i = 0; i < 5; i++) {
@@ -52,7 +52,7 @@ class TaskManagerTest {
     }
 
     @Test
-    void savePreviousVersionTaskTest() {
+    void inMemoryHistoryManagerSavePreviousVersionTaskTest() {
         TaskManager taskManager = Managers.getDefault();
 
         Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
