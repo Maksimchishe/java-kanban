@@ -23,7 +23,7 @@ class TaskManagerTest {
     }
 
     @Test
-    void InMemoryHistoryManagerUsesAllTypeClassTest() {
+    void inMemoryHistoryManagerUsesAllTypeClassTest() {
         TaskManager taskManager = Managers.getDefault();
 
         for (int i = 0; i < 5; i++) {
@@ -52,7 +52,7 @@ class TaskManagerTest {
     }
 
     @Test
-    void InMemoryHistoryManagerSavePreviousVersionTaskTest() {
+    void inMemoryHistoryManagerSavePreviousVersionTaskTest() {
         TaskManager taskManager = Managers.getDefault();
 
         Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
@@ -186,8 +186,7 @@ class TaskManagerTest {
     void deleteSubTaskByIdTest() {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
-        Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование"
-                , "Пояснение", Status.NEW));
+        Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование", "Пояснение", Status.NEW));
         assertNotNull(newSubTask, "Задача не найдена.");
         assertTrue(taskManager.deleteSubTaskById(newSubTask.getId()), "Задача не удалена.");
 
@@ -226,8 +225,7 @@ class TaskManagerTest {
         for (int i = 0; i < 5; i++) {
             Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
             taskManager.getEpicById(newEpic.getId());
-            Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование"
-                    , "Пояснение", Status.NEW));
+            Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование", "Пояснение", Status.NEW));
             taskManager.getSubTaskById(newSubTask.getId());
         }
         assertEquals(5, taskManager.getAllSubTasks().size(), "Неверное количество задач.");
