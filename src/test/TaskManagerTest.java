@@ -7,6 +7,8 @@ import ru.practicum.task_trecker.task.Status;
 import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskManagerTest {
@@ -35,7 +37,7 @@ class TaskManagerTest {
             taskManager.getSubTaskById(newSubTask.getId());
         }
 
-        assertEquals(10, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        assertEquals(15, taskManager.getTaskHistory().size(), "Неверное количество задач.");
 
         boolean typeEpic = false;
         boolean typeSubTask = false;
@@ -61,22 +63,15 @@ class TaskManagerTest {
                 , "Обновленное пояснение", Status.NEW));
         taskManager.getTaskById(newTask.getId());
 
-        assertEquals(2, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        assertEquals(1, taskManager.getTaskHistory().size(), "Неверное количество задач.");
         assertEquals(taskManager.getTaskHistory().getFirst().getId(), taskManager.getTaskHistory().getLast().getId()
                 , "Id задач неравны.");
 
-        assertEquals(taskManager.getTaskHistory().getFirst().getName(), "Наименование"
+        assertEquals(taskManager.getTaskHistory().getFirst().getName(), "Обновленное наименование"
                 , "Поле name не совпадает у дочернего экземпляра.");
-        assertEquals(taskManager.getTaskHistory().getFirst().getDescription(), "Пояснение"
+        assertEquals(taskManager.getTaskHistory().getFirst().getDescription(), "Обновленное пояснение"
                 , "Поле description не совпадает у дочернего экземпляра.");
         assertEquals(taskManager.getTaskHistory().getFirst().getStatus(), Status.NEW
-                , "Поле status не совпадает у дочернего экземпляра.");
-
-        assertEquals(taskManager.getTaskHistory().getLast().getName(), "Обновленное наименование"
-                , "Поле name не совпадает у дочернего экземпляра.");
-        assertEquals(taskManager.getTaskHistory().getLast().getDescription(), "Обновленное пояснение"
-                , "Поле description не совпадает у дочернего экземпляра.");
-        assertEquals(taskManager.getTaskHistory().getLast().getStatus(), Status.NEW
                 , "Поле status не совпадает у дочернего экземпляра.");
     }
 
@@ -251,7 +246,105 @@ class TaskManagerTest {
         }
         assertEquals(5, taskManager.getAllSubTasks().size(), "Неверное количество задач.");
         taskManager.delAllSubTask();
+        taskManager.delAllEpic();
+
         assertTrue(taskManager.getAllSubTasks().isEmpty(), "Задачи не удалены.");
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void historyAddAndDeleteTaskTest() {
+        TaskManager taskManager = Managers.getDefault();
+
+        for (int i = 0; i < 5; i++) {
+            taskManager.createTask(new Task("Задача", "Пояснение", Status.NEW));
+        }
+
+        List<Task> listTask = taskManager.getAllTasks();
+        assertEquals(5, listTask.size(), "Неверное количество задач.");
+
+        int current = 0;
+
+        for (Task task : listTask) {
+            taskManager.getTaskById(task.getId());
+            current++;
+            assertEquals(current, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        }
+
+        assertEquals(5, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+
+        for (Task task : listTask) {
+            taskManager.deleteTaskById(task.getId());
+            current--;
+            assertEquals(current, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        }
+
+        assertEquals(0, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+
+    }
+
+    @Test
+    void historyAddAndDeleteEpicTest() {
+        TaskManager taskManager = Managers.getDefault();
+
+        for (int i = 0; i < 5; i++) {
+            taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
+        }
+
+        List<Epic> listEpic = taskManager.getAllEpics();
+        assertEquals(5, listEpic.size(), "Неверное количество задач.");
+
+        int current = 0;
+
+        for (Epic epic : listEpic) {
+            taskManager.getEpicById(epic.getId());
+            current++;
+            assertEquals(current, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        }
+
+        assertEquals(5, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+
+        for (Epic epic : listEpic) {
+            taskManager.deleteEpicById(epic.getId());
+            current--;
+            assertEquals(current, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        }
+
+        assertEquals(0, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+
+    }
+
+    @Test
+    void historyAddAndDeleteSubTaskTest() {
+        TaskManager taskManager = Managers.getDefault();
+
+        Epic testEpic = taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
+
+        for (int i = 0; i < 5; i++) {
+            taskManager.createSubTask(new Subtask(testEpic.getId(), "Задача", "Пояснение", Status.NEW));
+        }
+
+        List<Subtask> listSubTaskEpic = taskManager.getAllSubTaskById(testEpic.getId());
+        assertEquals(5, listSubTaskEpic.size(), "Неверное количество задач.");
+
+        int current = 0;
+
+        for (Subtask subTask : listSubTaskEpic) {
+            taskManager.getSubTaskById(subTask.getId());
+            current++;
+            assertEquals(current, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        }
+
+        assertEquals(5, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+
+        for (Subtask subTask : listSubTaskEpic) {
+            taskManager.deleteSubTaskById(subTask.getId());
+            current--;
+            assertEquals(current, taskManager.getTaskHistory().size(), "Неверное количество задач.");
+        }
+
+        assertEquals(0, taskManager.getTaskHistory().size(), "Неверное количество задач.");
     }
 
 

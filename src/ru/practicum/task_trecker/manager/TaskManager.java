@@ -4,12 +4,11 @@ import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
 
-    ArrayList<Task> getTaskHistory();
+    List<Task> getTaskHistory();
 
     <T> void saveInHistory(T task);
 
@@ -53,5 +52,4 @@ public interface TaskManager {
 
     void delAllSubTask();
 
-    List<Integer> testIdEpic(Integer idEpic);
 }
