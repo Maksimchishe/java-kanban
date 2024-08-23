@@ -30,9 +30,8 @@ public class Epic extends Task {
         this.listIdSubTasks.addAll(listIdSubTasks);
     }
 
-    public List<Integer> getListIdSubTask() { // Для теста
-        return listIdSubTasks;
+    @Override
+    public Type getType() {
+        return Type.EPIC;
     }
-
-
 }

@@ -14,6 +14,7 @@ public class Subtask extends Task {
         this.idEpic = idEpic;
     }
 
+    @Override
     public Integer getIdEpic() {
         return idEpic;
     }
@@ -27,5 +28,11 @@ public class Subtask extends Task {
                 ", description='" + this.getDescription() + '\'' +
                 ", status='" + this.getStatus() + '\'' + "}";
     }
+
+    @Override
+    public Type getType() {
+        return Type.SUB;
+    }
+
 }
 

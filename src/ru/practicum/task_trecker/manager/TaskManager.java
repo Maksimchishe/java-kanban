@@ -52,4 +52,6 @@ public interface TaskManager {
 
     void delAllSubTask();
 
+    void loadFromFile();
 }
+
