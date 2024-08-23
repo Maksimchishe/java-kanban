@@ -12,8 +12,8 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private final String PATH_TO_FILE = "src/path/file.csv";
-    private final Path path = Path.of(PATH_TO_FILE);
+    private final String FILE = "src/path/file.csv";
+    private final Path path = Path.of(FILE);
 
     @Override
     public void loadFromFile() {
@@ -64,7 +64,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private void save() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(PATH_TO_FILE))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE))) {
             //header
             bw.write(CSVFormatter.getHeader());
             bw.newLine();
