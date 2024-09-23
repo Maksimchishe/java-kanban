@@ -9,14 +9,22 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private static int id;
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private final Map<Integer, Subtask> subTasks = new HashMap<>();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected final Map<Integer, Subtask> subTasks = new HashMap<>();
 
     HistoryManager history = Managers.getDefaultHistory();
 
     private int getNextId() {
         return id++;
+    }
+
+    public void setId(int idMax) {
+        id = idMax;
+    }
+
+    public int getId() {
+        return id;
     }
 
     private void selectStatus(Integer idEpic) {
@@ -106,10 +114,13 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         Integer taskId = task.getId();
+
         if (tasks.containsKey(taskId)) {
             tasks.put(taskId, task);
+            return tasks.get(taskId);
         }
-        return tasks.get(taskId);
+
+        return null;
     }
 
     @Override
@@ -119,10 +130,12 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         Integer epicId = epic.getId();
+
         if (epics.containsKey(epicId)) {
             epics.put(epicId, epic);
+            return epics.get(epicId);
         }
-        return epics.get(epicId);
+        return null;
     }
 
     @Override
@@ -133,11 +146,14 @@ public class InMemoryTaskManager implements TaskManager {
 
         Integer subTaskId = subTask.getId();
         Integer idEpic = subTask.getIdEpic();
+
         if (subTasks.containsKey(subTaskId)) {
             subTasks.put(subTaskId, subTask);
+            selectStatus(idEpic);
+            return subTasks.get(subTaskId);
         }
-        selectStatus(idEpic);
-        return subTasks.get(subTaskId);
+
+        return null;
     }
 
     @Override
@@ -280,6 +296,11 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             epic.setStatus(Status.NEW);
         }
+    }
+
+    @Override
+    public void loadFromFile() {
+
     }
 
 }

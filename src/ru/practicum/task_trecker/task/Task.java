@@ -6,6 +6,10 @@ public class Task {
     private final String description;
     private Status status;
 
+    public Type getType() {
+        return Type.TASK;
+    }
+
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
@@ -17,6 +21,10 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Integer getIdEpic() {
+        return null;
     }
 
     public String getName() {
@@ -46,7 +54,7 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                ", id='" + id + '\'' +
+                "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +

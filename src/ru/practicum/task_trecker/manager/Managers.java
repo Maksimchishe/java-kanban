@@ -3,7 +3,8 @@ package ru.practicum.task_trecker.manager;
 public class Managers {
 
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+        return new FileBackedTaskManager();
+        //return new InMemoryTaskManager();
     }
 
     public static HistoryManager getDefaultHistory() {
