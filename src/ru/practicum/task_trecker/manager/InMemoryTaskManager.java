@@ -1,11 +1,10 @@
 package ru.practicum.task_trecker.manager;
 
-import ru.practicum.task_trecker.task.Epic;
-import ru.practicum.task_trecker.task.Status;
-import ru.practicum.task_trecker.task.Subtask;
-import ru.practicum.task_trecker.task.Task;
+import ru.practicum.task_trecker.task.*;
 
+import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private static int id;
@@ -16,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     HistoryManager history = Managers.getDefaultHistory();
 
     private int getNextId() {
-        return id++;
+        return ++id;
     }
 
     public void setId(int idMax) {
@@ -39,11 +38,11 @@ public class InMemoryTaskManager implements TaskManager {
 
         for (Subtask subtask : subTasks.values()) {
             if (epics.containsKey(idEpic) && subtask.getIdEpic().equals(idEpic)) {
-                if (subtask.getStatus() == Status.NEW) {
+                if (subtask.getStatus().equals(Status.NEW)) {
                     statusNew = true;
-                } else if (subtask.getStatus() == Status.DONE) {
+                } else if (subtask.getStatus().equals(Status.DONE)) {
                     statusDone = true;
-                } else if (subtask.getStatus() == Status.IN_PROGRESS) {
+                } else if (subtask.getStatus().equals(Status.IN_PROGRESS)) {
                     statusInProgress = true;
                 }
             }
@@ -61,19 +60,56 @@ public class InMemoryTaskManager implements TaskManager {
 
         epics.get(idEpic).setStatus(status);
 
-        //Добавление/Обновление списка id SubTask в Epic
-        List<Integer> listIdSubTasks = new ArrayList<>();
-        for (Subtask subtask : subTasks.values()) {
-            if (subtask.getIdEpic().equals(idEpic)) {
-                listIdSubTasks.add(subtask.getId());
-            }
+        updateSubTaskToEpic(idEpic);
+    }
+
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+
+        Comparator<Task> comparator = Comparator.comparing(Task::getStartTime);
+        TreeSet<Task> setTasks = new TreeSet<>(comparator);
+
+        List<Task> listTask = new ArrayList<>();
+        listTask.addAll(tasks.values());
+        listTask.addAll(subTasks.values());
+
+        setTasks.addAll(listTask.stream()
+                .filter(t -> t.getStartTime() != null)
+                .collect(Collectors.toSet()));
+
+        return setTasks;
+    }
+
+    @Override
+    public boolean validationTimeTask(Task task) {
+
+        return getPrioritizedTasks().stream().anyMatch(t -> task.getStartTime().isBefore(t.getEndTime())
+                && task.getEndTime().isAfter(t.getStartTime()));
+    }
+
+    @Override
+    public void updateSubTaskToEpic(Integer idEpic) {
+        Comparator<Subtask> comparator = Comparator.comparing(Subtask::getStartTime);
+        TreeSet<Subtask> setSubTask = new TreeSet<>(comparator);
+        List<Duration> listDuration = new ArrayList<>();
+
+        setSubTask.addAll(subTasks.values().stream()
+                .filter(t -> t.getIdEpic().equals(idEpic))
+                .filter(t -> t.getStartTime() != null)
+                .peek(t -> listDuration.add(t.getDuration()))
+                .collect(Collectors.toSet()));
+
+        if (!setSubTask.isEmpty()) {
+            epics.get(idEpic).setStartTime(setSubTask.first().getStartTime());
+            epics.get(idEpic).setDuration(listDuration.stream().reduce(Duration.ZERO, Duration::plus));
+            epics.get(idEpic).setEndTime(setSubTask.last().getEndTime());
         }
-        epics.get(idEpic).addListIdSubTask(listIdSubTasks);
     }
 
     @Override
     public Task createTask(Task task) {
-        if (task == null) {
+
+        if (task == null || validationTimeTask(task)) {
             return null;
         }
 
@@ -96,10 +132,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubTask(Subtask subTask) {
-        if (subTask == null) {
+        if (subTask == null || validationTimeTask(subTask)) {
             return null;
         }
-
         subTask.setId(getNextId());
         Integer id = subTask.getId();
         subTasks.put(id, subTask);
@@ -109,7 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task updateTask(Task task) {
-        if (task == null) {
+        if (task == null || validationTimeTask(task)) {
             return null;
         }
 
@@ -119,7 +154,6 @@ public class InMemoryTaskManager implements TaskManager {
             tasks.put(taskId, task);
             return tasks.get(taskId);
         }
-
         return null;
     }
 
@@ -135,12 +169,15 @@ public class InMemoryTaskManager implements TaskManager {
             epics.put(epicId, epic);
             return epics.get(epicId);
         }
+
+        updateSubTaskToEpic(epic.getId());
+
         return null;
     }
 
     @Override
     public Subtask updateSubTask(Subtask subTask) {
-        if (subTask == null) {
+        if (subTask == null || validationTimeTask(subTask)) {
             return null;
         }
 
@@ -152,7 +189,6 @@ public class InMemoryTaskManager implements TaskManager {
             selectStatus(idEpic);
             return subTasks.get(subTaskId);
         }
-
         return null;
     }
 
@@ -161,7 +197,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (task == null) {
             return;
         }
-
         history.add((Task) task);
     }
 
@@ -175,7 +210,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (id == null) {
             return null;
         }
-
         saveInHistory(tasks.get(id));
         return tasks.get(id);
     }
@@ -185,7 +219,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (id == null) {
             return null;
         }
-
         saveInHistory(epics.get(id));
         return epics.get(id);
     }
@@ -195,7 +228,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (id == null) {
             return null;
         }
-
         saveInHistory(subTasks.get(id));
         return subTasks.get(id);
     }
@@ -205,13 +237,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (idEpic == null || !epics.containsKey(idEpic)) {
             return null;
         }
-        List<Subtask> listOut = new ArrayList<>();
-        for (Subtask subtask : subTasks.values()) {
-            if (subtask.getIdEpic().equals(idEpic)) {
-                listOut.add(subtask);
-            }
-        }
-        return listOut;
+        return subTasks.values().stream()
+                .filter(s -> s.getIdEpic().equals(idEpic))
+                .toList();
     }
 
     @Override
@@ -243,7 +271,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (id == null || !epics.containsKey(id)) {
             return false;
         }
-
         deleteAllSubTasksByEpicId(id);
         history.remove(id);
         return epics.remove(id) != null;
@@ -277,30 +304,26 @@ public class InMemoryTaskManager implements TaskManager {
         if (id == null || !epics.containsKey(id)) {
             return;
         }
-        Map<Integer, Subtask> map = new HashMap<>();
-        for (Subtask subMap : subTasks.values()) {
-            if (!subMap.getIdEpic().equals(id)) {
-                map.put(subMap.getId(), subMap);
-            } else {
-                history.remove(subMap.getId());
-            }
-        }
-        subTasks.clear();
-        subTasks.putAll(map);
+        subTasks.values().stream()
+                .filter(s -> s.getIdEpic().equals(id))
+                .peek(s -> history.remove(s.getId()))
+                .forEach(s -> deleteSubTaskById(s.getId()));
+
         selectStatus(id);
     }
 
     @Override
     public void delAllSubTask() {
         subTasks.clear();
-        for (Epic epic : epics.values()) {
-            epic.setStatus(Status.NEW);
-        }
+        epics.values().forEach(e -> {
+            e.setStatus(Status.NEW);
+            updateSubTaskToEpic(e.getId());
+        });
     }
 
     @Override
     public void loadFromFile() {
-
     }
 
 }
+

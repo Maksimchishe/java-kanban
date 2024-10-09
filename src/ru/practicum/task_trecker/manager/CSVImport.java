@@ -10,7 +10,6 @@ public class CSVImport {
     private Subtask subtask;
     private final Type type;
 
-
     public CSVImport(Integer id, Task task, Type type) {
         this.id = id;
         this.task = task;
@@ -48,4 +47,5 @@ public class CSVImport {
     public Type getType() {
         return type;
     }
+
 }

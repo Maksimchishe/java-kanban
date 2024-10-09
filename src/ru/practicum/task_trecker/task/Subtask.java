@@ -1,5 +1,7 @@
 package ru.practicum.task_trecker.task;
 
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
 
     private final Integer idEpic;
@@ -11,6 +13,11 @@ public class Subtask extends Task {
 
     public Subtask(Integer id, Integer idEpic, String name, String description, Status status) {
         super(id, name, description, status);
+        this.idEpic = idEpic;
+    }
+
+    public Subtask(Integer id, Integer idEpic, String name, String description, Status status, LocalDateTime startTime, int duration) {
+        super(id, name, description, status, startTime, duration);
         this.idEpic = idEpic;
     }
 
@@ -26,7 +33,10 @@ public class Subtask extends Task {
                 ", idEpic='" + this.getIdEpic() + '\'' +
                 ", name='" + this.getName() + '\'' +
                 ", description='" + this.getDescription() + '\'' +
-                ", status='" + this.getStatus() + '\'' + "}";
+                ", status='" + this.getStatus() + '\'' +
+                ", startTime='" + this.getStartTime() + '\'' +
+                ", duration='" + this.getDuration() + '\'' +
+                "}";
     }
 
     @Override

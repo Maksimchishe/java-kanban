@@ -90,12 +90,5 @@ public class InMemoryHistoryManager implements HistoryManager {
             this.value = value;
         }
 
-        @Override
-        public String toString() {
-            return "Node{" +
-                    "next=" + next +
-                    ", prev=" + prev +
-                    '}';
-        }
     }
 }

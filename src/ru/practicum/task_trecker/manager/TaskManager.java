@@ -5,8 +5,13 @@ import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
 
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
+
+    TreeSet<Task> getPrioritizedTasks();
+
+    boolean validationTimeTask(Task task);
 
     List<Task> getTaskHistory();
 
@@ -53,5 +58,8 @@ public interface TaskManager {
     void delAllSubTask();
 
     void loadFromFile();
+
+    void updateSubTaskToEpic(Integer idEpic);
+
 }
 
