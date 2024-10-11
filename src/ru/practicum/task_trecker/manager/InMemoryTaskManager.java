@@ -38,11 +38,11 @@ public class InMemoryTaskManager implements TaskManager {
 
         for (Subtask subtask : subTasks.values()) {
             if (epics.containsKey(idEpic) && subtask.getIdEpic().equals(idEpic)) {
-                if (subtask.getStatus().equals(Status.NEW)) {
+                if (subtask.getStatus() == Status.NEW) {
                     statusNew = true;
-                } else if (subtask.getStatus().equals(Status.DONE)) {
+                } else if (subtask.getStatus() == Status.DONE) {
                     statusDone = true;
-                } else if (subtask.getStatus().equals(Status.IN_PROGRESS)) {
+                } else if (subtask.getStatus() == Status.IN_PROGRESS) {
                     statusInProgress = true;
                 }
             }
@@ -65,19 +65,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public TreeSet<Task> getPrioritizedTasks() {
-
-        Comparator<Task> comparator = Comparator.comparing(Task::getStartTime);
-        TreeSet<Task> setTasks = new TreeSet<>(comparator);
-
         List<Task> listTask = new ArrayList<>();
         listTask.addAll(tasks.values());
         listTask.addAll(subTasks.values());
-
-        setTasks.addAll(listTask.stream()
+        return listTask.stream()
                 .filter(t -> t.getStartTime() != null)
-                .collect(Collectors.toSet()));
-
-        return setTasks;
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Task::getStartTime))));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ru.practicum.task_trecker.Exception;
+package ru.practicum.task_trecker.exception;
 
 public class ManagerSaveException extends RuntimeException {
 
