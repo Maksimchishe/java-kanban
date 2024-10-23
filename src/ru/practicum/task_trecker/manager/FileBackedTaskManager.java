@@ -1,5 +1,6 @@
 package ru.practicum.task_trecker.manager;
 
+import ru.practicum.task_trecker.exception.ManagerSaveException;
 import ru.practicum.task_trecker.task.*;
 
 import java.io.BufferedWriter;
@@ -58,9 +59,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             super.setId(maxId);
 
+            super.epics.values().forEach(e -> super.updateSubTaskToEpic(e.getId()));
+
         } catch (IOException e) {
             throw ManagerSaveException.managerLoadException(e);
         }
+
     }
 
     private void save() {

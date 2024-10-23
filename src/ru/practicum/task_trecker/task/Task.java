@@ -1,14 +1,15 @@
 package ru.practicum.task_trecker.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
     private Integer id;
     private final String name;
     private final String description;
     private Status status;
-
-    public Type getType() {
-        return Type.TASK;
-    }
+    private LocalDateTime startTime;
+    private Duration duration = Duration.ZERO;
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -21,6 +22,39 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(String name, String description, Status status, LocalDateTime startTime, Integer duration) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.startTime = startTime;
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public Task(Integer id, String name, String description, Status status, LocalDateTime startTime, Integer duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.startTime = startTime;
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public Type getType() {
+        return Type.TASK;
     }
 
     public Integer getIdEpic() {
@@ -58,6 +92,8 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", duration='" + duration + '\'' +
                 '}';
     }
 

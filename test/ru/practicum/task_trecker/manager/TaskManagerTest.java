@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskManagerTest {
+abstract class TaskManagerTest {
 
     @Test
     void managersTest() {
