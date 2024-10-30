@@ -1,5 +1,6 @@
 package ru.practicum.task_trecker.manager;
 
+import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.task.*;
 
 import java.time.Duration;
@@ -18,7 +19,11 @@ public class InMemoryTaskManager implements TaskManager {
         return ++id;
     }
 
-    public void setId(int idMax) {
+    public void setId(Integer idMax) throws NotFoundException {
+        if (idMax == null) {
+            throw NotFoundException.notFound();
+        }
+
         id = idMax;
     }
 
@@ -26,9 +31,9 @@ public class InMemoryTaskManager implements TaskManager {
         return id;
     }
 
-    private void selectStatus(Integer idEpic) {
+    private void selectStatus(Integer idEpic) throws NotFoundException {
         if (idEpic == null) {
-            return;
+            throw NotFoundException.notFound();
         }
 
         Status status;
@@ -74,14 +79,25 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean validationTimeTask(Task task) {
+    public boolean validationTimeTask(Task task) throws NotFoundException {
+        if (task == null) {
+            throw NotFoundException.objectNull();
+        }
 
-        return getPrioritizedTasks().stream().anyMatch(t -> task.getStartTime().isBefore(t.getEndTime())
-                && task.getEndTime().isAfter(t.getStartTime()));
+        if (task.getStartTime() == null) {
+            return false;
+        }
+
+        return getPrioritizedTasks().stream().anyMatch(t -> task.getStartTime().isBefore(t.getEndTimeTask())
+                && task.getEndTimeTask().isAfter(t.getStartTime()));
     }
 
     @Override
-    public void updateSubTaskToEpic(Integer idEpic) {
+    public void updateSubTaskToEpic(Integer idEpic) throws NotFoundException {
+        if (idEpic == null) {
+            throw NotFoundException.notFound();
+        }
+
         Comparator<Subtask> comparator = Comparator.comparing(Subtask::getStartTime);
         TreeSet<Subtask> setSubTask = new TreeSet<>(comparator);
         List<Duration> listDuration = new ArrayList<>();
@@ -95,15 +111,19 @@ public class InMemoryTaskManager implements TaskManager {
         if (!setSubTask.isEmpty()) {
             epics.get(idEpic).setStartTime(setSubTask.first().getStartTime());
             epics.get(idEpic).setDuration(listDuration.stream().reduce(Duration.ZERO, Duration::plus));
-            epics.get(idEpic).setEndTime(setSubTask.last().getEndTime());
+            epics.get(idEpic).setEndTime(setSubTask.last().getEndTimeEpic());
         }
     }
 
     @Override
-    public Task createTask(Task task) {
+    public Task createTask(Task task) throws NotFoundException {
 
-        if (task == null || validationTimeTask(task)) {
-            return null;
+        if (task == null) {
+            throw NotFoundException.objectNull();
+        }
+
+        if (task.getStartTime() != null && validationTimeTask(task)) {
+            throw NotFoundException.notAcceptable();
         }
 
         task.setId(getNextId());
@@ -113,10 +133,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic createEpic(Epic epic) {
+    public Epic createEpic(Epic epic) throws NotFoundException {
         if (epic == null) {
-            return null;
+            throw NotFoundException.objectNull();
         }
+
         epic.setId(getNextId());
         Integer id = epic.getId();
         epics.put(id, epic);
@@ -124,10 +145,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask createSubTask(Subtask subTask) {
-        if (subTask == null || validationTimeTask(subTask)) {
-            return null;
+    public Subtask createSubTask(Subtask subTask) throws NotFoundException {
+        if (subTask == null) {
+            throw NotFoundException.objectNull();
         }
+
+        if (validationTimeTask(subTask)) {
+            throw NotFoundException.notAcceptable();
+        }
+
         subTask.setId(getNextId());
         Integer id = subTask.getId();
         subTasks.put(id, subTask);
@@ -136,59 +162,74 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task updateTask(Task task) {
-        if (task == null || validationTimeTask(task)) {
-            return null;
+    public Task updateTask(Task task) throws NotFoundException {
+        if (task == null) {
+            throw NotFoundException.objectNull();
         }
 
         Integer taskId = task.getId();
-
-        if (tasks.containsKey(taskId)) {
-            tasks.put(taskId, task);
-            return tasks.get(taskId);
+        if (!tasks.containsKey(taskId)) {
+            throw NotFoundException.NotContainsKey();
         }
-        return null;
+
+        if ((tasks.get(taskId).getStartTime() !=null && tasks.get(taskId).getDuration() !=null)
+                && !(tasks.get(taskId).getStartTime().equals(task.getStartTime())
+                && tasks.get(taskId).getDuration().equals(task.getDuration()))
+                && validationTimeTask(task)) {
+            throw NotFoundException.notAcceptable();
+        }
+
+        tasks.put(taskId, task);
+        return tasks.get(taskId);
     }
 
     @Override
-    public Epic updateEpic(Epic epic) {
+    public Epic updateEpic(Epic epic) throws NotFoundException {
         if (epic == null) {
-            return null;
+            throw NotFoundException.objectNull();
         }
 
         Integer epicId = epic.getId();
 
-        if (epics.containsKey(epicId)) {
-            epics.put(epicId, epic);
-            return epics.get(epicId);
+        if (!epics.containsKey(epicId)) {
+            throw NotFoundException.NotContainsKey();
         }
 
+        epics.put(epicId, epic);
         updateSubTaskToEpic(epic.getId());
 
-        return null;
+        return epics.get(epicId);
     }
 
     @Override
-    public Subtask updateSubTask(Subtask subTask) {
-        if (subTask == null || validationTimeTask(subTask)) {
-            return null;
+    public Subtask updateSubTask(Subtask subTask) throws NotFoundException {
+        if (subTask == null) {
+            throw NotFoundException.objectNull();
         }
 
         Integer subTaskId = subTask.getId();
         Integer idEpic = subTask.getIdEpic();
 
-        if (subTasks.containsKey(subTaskId)) {
-            subTasks.put(subTaskId, subTask);
-            selectStatus(idEpic);
-            return subTasks.get(subTaskId);
+        if (!subTasks.containsKey(subTaskId)) {
+            throw NotFoundException.NotContainsKey();
         }
-        return null;
+
+        if ((subTasks.get(subTaskId).getStartTime() !=null && subTasks.get(subTaskId).getDuration() !=null)
+                && !(subTasks.get(subTaskId).getStartTime().equals(subTask.getStartTime())
+                && subTasks.get(subTaskId).getDuration().equals(subTask.getDuration()))
+                && validationTimeTask(subTask)) {
+            throw NotFoundException.notAcceptable();
+        }
+
+        subTasks.put(subTaskId, subTask);
+        selectStatus(idEpic);
+        return subTasks.get(subTaskId);
     }
 
     @Override
-    public <T> void saveInHistory(T task) {
+    public <T> void saveInHistory(T task) throws NotFoundException {
         if (task == null) {
-            return;
+            throw NotFoundException.objectNull();
         }
         history.add((Task) task);
     }
@@ -199,37 +240,44 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTaskById(Integer id) {
+    public Task getTaskById(Integer id) throws NotFoundException {
         if (id == null) {
-            return null;
+            throw NotFoundException.notFound();
         }
         saveInHistory(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
-    public Epic getEpicById(Integer id) {
+    public Epic getEpicById(Integer id) throws NotFoundException {
         if (id == null) {
-            return null;
+            throw NotFoundException.notFound();
         }
+
         saveInHistory(epics.get(id));
         return epics.get(id);
     }
 
     @Override
-    public Subtask getSubTaskById(Integer id) {
+    public Subtask getSubTaskById(Integer id) throws NotFoundException {
         if (id == null) {
-            return null;
+            throw NotFoundException.notFound();
         }
         saveInHistory(subTasks.get(id));
         return subTasks.get(id);
     }
 
     @Override
-    public List<Subtask> getAllSubTaskById(Integer idEpic) {
-        if (idEpic == null || !epics.containsKey(idEpic)) {
-            return null;
+    public List<Subtask> getAllSubTaskById(Integer idEpic) throws NotFoundException {
+
+        if (idEpic == null) {
+            throw NotFoundException.notFound();
         }
+
+        if (!epics.containsKey(idEpic)) {
+            throw NotFoundException.NotContainsKey();
+        }
+
         return subTasks.values().stream()
                 .filter(s -> s.getIdEpic().equals(idEpic))
                 .toList();
@@ -251,30 +299,47 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean deleteTaskById(Integer id) {
-        if (id != null && tasks.containsKey(id)) {
-            history.remove(id);
-            return tasks.remove(id) != null;
+    public boolean deleteTaskById(Integer id) throws NotFoundException {
+        if (id == null) {
+            throw NotFoundException.notFound();
         }
-        return false;
+
+        if (!tasks.containsKey(id)) {
+            throw NotFoundException.NotContainsKey();
+        }
+
+        history.remove(id);
+        return tasks.remove(id) != null;
     }
 
     @Override
-    public boolean deleteEpicById(Integer id) {
-        if (id == null || !epics.containsKey(id)) {
-            return false;
+    public boolean deleteEpicById(Integer id) throws NotFoundException {
+        if (id == null) {
+            throw NotFoundException.notFound();
         }
+
+        if (!epics.containsKey(id)) {
+            throw NotFoundException.NotContainsKey();
+        }
+
         deleteAllSubTasksByEpicId(id);
         history.remove(id);
         return epics.remove(id) != null;
     }
 
     @Override
-    public boolean deleteSubTaskById(Integer id) {
-        Integer idEpic = subTasks.get(id).getIdEpic();
-        if (id == null || !subTasks.containsKey(id)) {
-            return false;
+    public boolean deleteSubTaskById(Integer id) throws NotFoundException {
+
+        if (id == null) {
+            throw NotFoundException.notFound();
         }
+
+        if (!subTasks.containsKey(id)) {
+            throw NotFoundException.NotContainsKey();
+        }
+
+        Integer idEpic = subTasks.get(id).getIdEpic();
+
         boolean del = subTasks.remove(id) != null;
         selectStatus(idEpic);
         history.remove(id);
@@ -293,14 +358,26 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllSubTasksByEpicId(Integer id) {
-        if (id == null || !epics.containsKey(id)) {
-            return;
+    public void deleteAllSubTasksByEpicId(Integer id) throws NotFoundException {
+
+        if (id == null) {
+            throw NotFoundException.notFound();
         }
+
+        if (!epics.containsKey(id)) {
+            throw NotFoundException.NotContainsKey();
+        }
+
         subTasks.values().stream()
                 .filter(s -> s.getIdEpic().equals(id))
                 .peek(s -> history.remove(s.getId()))
-                .forEach(s -> deleteSubTaskById(s.getId()));
+                .forEach(s -> {
+                    try {
+                        deleteSubTaskById(s.getId());
+                    } catch (NotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
         selectStatus(id);
     }
@@ -310,12 +387,16 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.clear();
         epics.values().forEach(e -> {
             e.setStatus(Status.NEW);
-            updateSubTaskToEpic(e.getId());
+            try {
+                updateSubTaskToEpic(e.getId());
+            } catch (NotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
         });
     }
 
     @Override
-    public void loadFromFile() {
+    public void loadFromFile() throws NotFoundException {
     }
 
 }

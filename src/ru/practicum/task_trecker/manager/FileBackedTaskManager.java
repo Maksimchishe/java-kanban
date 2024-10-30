@@ -1,6 +1,7 @@
 package ru.practicum.task_trecker.manager;
 
 import ru.practicum.task_trecker.exception.ManagerSaveException;
+import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.task.*;
 
 import java.io.BufferedWriter;
@@ -13,11 +14,15 @@ import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
+    public FileBackedTaskManager() throws NotFoundException {
+        loadFromFile();
+    }
+
     private final String file = "src/path/file.csv";
     private final Path path = Path.of(file);
 
     @Override
-    public void loadFromFile() {
+    public void loadFromFile() throws NotFoundException {
 
         try {
 
@@ -59,7 +64,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             super.setId(maxId);
 
-            super.epics.values().forEach(e -> super.updateSubTaskToEpic(e.getId()));
+            super.epics.values().forEach(e -> {
+                try {
+                    super.updateSubTaskToEpic(e.getId());
+                } catch (NotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
 
         } catch (IOException e) {
             throw ManagerSaveException.managerLoadException(e);
@@ -94,63 +105,63 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task createTask(Task task) {
+    public Task createTask(Task task) throws NotFoundException {
         Task createTask = super.createTask(task);
         save();
         return createTask;
     }
 
     @Override
-    public Epic createEpic(Epic epic) {
+    public Epic createEpic(Epic epic) throws NotFoundException {
         Epic createEpic = super.createEpic(epic);
         save();
         return createEpic;
     }
 
     @Override
-    public Subtask createSubTask(Subtask subTask) {
+    public Subtask createSubTask(Subtask subTask) throws NotFoundException {
         Subtask createSubTask = super.createSubTask(subTask);
         save();
         return createSubTask;
     }
 
     @Override
-    public Task updateTask(Task task) {
+    public Task updateTask(Task task) throws NotFoundException {
         Task updateTask = super.updateTask(task);
         save();
         return updateTask;
     }
 
     @Override
-    public Epic updateEpic(Epic epic) {
+    public Epic updateEpic(Epic epic) throws NotFoundException {
         Epic updateEpic = super.updateEpic(epic);
         save();
         return updateEpic;
     }
 
     @Override
-    public Subtask updateSubTask(Subtask subTask) {
+    public Subtask updateSubTask(Subtask subTask) throws NotFoundException {
         Subtask updateSubTask = super.updateSubTask(subTask);
         save();
         return updateSubTask;
     }
 
     @Override
-    public boolean deleteTaskById(Integer id) {
+    public boolean deleteTaskById(Integer id) throws NotFoundException {
         boolean del = super.deleteTaskById(id);
         save();
         return del;
     }
 
     @Override
-    public boolean deleteEpicById(Integer id) {
+    public boolean deleteEpicById(Integer id) throws NotFoundException {
         boolean del = super.deleteEpicById(id);
         save();
         return del;
     }
 
     @Override
-    public boolean deleteSubTaskById(Integer id) {
+    public boolean deleteSubTaskById(Integer id) throws NotFoundException {
         boolean del = super.deleteSubTaskById(id);
         save();
         return del;
@@ -169,7 +180,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void deleteAllSubTasksByEpicId(Integer id) {
+    public void deleteAllSubTasksByEpicId(Integer id) throws NotFoundException {
         super.deleteAllSubTasksByEpicId(id);
         save();
     }

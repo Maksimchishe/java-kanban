@@ -9,7 +9,8 @@ public class Task {
     private final String description;
     private Status status;
     private LocalDateTime startTime;
-    private Duration duration = Duration.ZERO;
+    private LocalDateTime endTime;
+    private Duration duration;
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -24,29 +25,33 @@ public class Task {
         this.status = status;
     }
 
-    public Task(String name, String description, Status status, LocalDateTime startTime, Integer duration) {
+    public Task(String name, String description, Status status, LocalDateTime startTime, Duration duration) {
         this.name = name;
         this.description = description;
         this.status = status;
         this.startTime = startTime;
-        this.duration = Duration.ofMinutes(duration);
+        this.duration = duration;
     }
 
-    public Task(Integer id, String name, String description, Status status, LocalDateTime startTime, Integer duration) {
+    public Task(Integer id, String name, String description, Status status, LocalDateTime startTime, Duration duration) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
         this.startTime = startTime;
-        this.duration = Duration.ofMinutes(duration);
+        this.duration = duration;
     }
 
     public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public LocalDateTime getEndTimeTask() {
         return startTime.plus(duration);
+    }
+
+    public LocalDateTime getEndTimeEpic() {
+        return endTime;
     }
 
     public Duration getDuration() {
@@ -85,16 +90,21 @@ public class Task {
         this.status = status;
     }
 
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
     @Override
     public String toString() {
-        return "Task{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status='" + status + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", duration='" + duration + '\'' +
-                '}';
+        return "Task{id='%d', name='%s', description='%s', status='%s', startTime='%s', duration='%s'}".formatted(id, name, description, status, startTime, duration);
     }
 
     @Override
