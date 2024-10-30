@@ -17,7 +17,7 @@ public class NotFoundException extends Throwable {
         return new NotFoundException("object Null");
     }
 
-    public static NotFoundException NotContainsKey() {
+    public static NotFoundException notContainsKey() {
         return new NotFoundException("Not Contains Key");
     }
 }

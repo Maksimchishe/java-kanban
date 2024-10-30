@@ -169,7 +169,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         Integer taskId = task.getId();
         if (!tasks.containsKey(taskId)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         if ((tasks.get(taskId).getStartTime() != null && tasks.get(taskId).getDuration() != null) && !(tasks.get(taskId).getStartTime().equals(task.getStartTime()) && tasks.get(taskId).getDuration().equals(task.getDuration())) && validationTimeTask(task)) {
@@ -189,7 +189,7 @@ public class InMemoryTaskManager implements TaskManager {
         Integer epicId = epic.getId();
 
         if (!epics.containsKey(epicId)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         epics.put(epicId, epic);
@@ -208,7 +208,7 @@ public class InMemoryTaskManager implements TaskManager {
         Integer idEpic = subTask.getIdEpic();
 
         if (!subTasks.containsKey(subTaskId)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         if ((subTasks.get(subTaskId).getStartTime() != null && subTasks.get(subTaskId).getDuration() != null) && !(subTasks.get(subTaskId).getStartTime().equals(subTask.getStartTime()) && subTasks.get(subTaskId).getDuration().equals(subTask.getDuration())) && validationTimeTask(subTask)) {
@@ -269,7 +269,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         if (!epics.containsKey(idEpic)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         return subTasks.values().stream()
@@ -299,7 +299,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         if (!tasks.containsKey(id)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         history.remove(id);
@@ -313,7 +313,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         if (!epics.containsKey(id)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         deleteAllSubTasksByEpicId(id);
@@ -329,7 +329,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         if (!subTasks.containsKey(id)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         Integer idEpic = subTasks.get(id).getIdEpic();
@@ -359,7 +359,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         if (!epics.containsKey(id)) {
-            throw NotFoundException.NotContainsKey();
+            throw NotFoundException.notContainsKey();
         }
 
         subTasks.values().stream()
