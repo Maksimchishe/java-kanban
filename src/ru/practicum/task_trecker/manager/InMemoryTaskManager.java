@@ -172,7 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw NotFoundException.NotContainsKey();
         }
 
-        if ((tasks.get(taskId).getStartTime() !=null && tasks.get(taskId).getDuration() !=null)
+        if ((tasks.get(taskId).getStartTime()!=null&&tasks.get(taskId).getDuration()!=null)
                 && !(tasks.get(taskId).getStartTime().equals(task.getStartTime())
                 && tasks.get(taskId).getDuration().equals(task.getDuration()))
                 && validationTimeTask(task)) {
@@ -214,7 +214,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw NotFoundException.NotContainsKey();
         }
 
-        if ((subTasks.get(subTaskId).getStartTime() !=null && subTasks.get(subTaskId).getDuration() !=null)
+        if ((subTasks.get(subTaskId).getStartTime()!=null&&subTasks.get(subTaskId).getDuration()!=null)
                 && !(subTasks.get(subTaskId).getStartTime().equals(subTask.getStartTime())
                 && subTasks.get(subTaskId).getDuration().equals(subTask.getDuration()))
                 && validationTimeTask(subTask)) {
