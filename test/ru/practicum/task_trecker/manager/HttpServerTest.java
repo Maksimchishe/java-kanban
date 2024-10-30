@@ -5,7 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import ru.practicum.task_trecker.HttpTaskServer;
+import ru.practicum.task_trecker.server.HttpTaskServer;
 import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Status;

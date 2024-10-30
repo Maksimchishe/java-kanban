@@ -1,12 +1,8 @@
-package ru.practicum.task_trecker;
+package ru.practicum.task_trecker.server;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.manager.TaskManager;
 import ru.practicum.task_trecker.task.Epic;
@@ -14,43 +10,8 @@ import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-
-import static java.time.format.DateTimeFormatter.*;
-
-
-public class HttpTaskServer {
-    final int PORT = 8080;
-    HttpServer httpServer;
-
-    public HttpTaskServer(TaskManager taskManager) throws IOException {
-        httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/", new TaskHandler(taskManager));
-    }
-
-    public void start() {
-        httpServer.start();
-        System.out.printf("HTTP-сервер запущен на %d порту!%n", PORT);
-    }
-
-    public void stop() {
-        httpServer.stop(0);
-    }
-
-    public static Gson getGson() {
-        return new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalTimeTypeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
-                .setPrettyPrinting()
-                .create();
-    }
-
-}
-
 
 class TaskHandler implements HttpHandler {
 
@@ -192,20 +153,20 @@ class TaskHandler implements HttpHandler {
                 case "DELETE": {
                     switch (splitUri[1]) {
                         case "tasks": {
-                            Integer Id = Integer.parseInt(splitUri[2]);
-                            taskManager.deleteTaskById(Id);
+                            Integer id = Integer.parseInt(splitUri[2]);
+                            taskManager.deleteTaskById(id);
                             sendText(exchange, "Удаление успешно.", 200);
                             break;
                         }
                         case "epics": {
-                            Integer Id = Integer.parseInt(splitUri[2]);
-                            taskManager.deleteEpicById(Id);
+                            Integer id = Integer.parseInt(splitUri[2]);
+                            taskManager.deleteEpicById(id);
                             sendText(exchange, "Удаление успешно.", 200);
                             break;
                         }
                         case "subtasks": {
-                            Integer Id = Integer.parseInt(splitUri[2]);
-                            taskManager.deleteSubTaskById(Id);
+                            Integer id = Integer.parseInt(splitUri[2]);
+                            taskManager.deleteSubTaskById(id);
                             sendText(exchange, "Удаление успешно.", 200);
                             break;
                         }
@@ -232,48 +193,5 @@ class TaskHandler implements HttpHandler {
         h.sendResponseHeaders(rCode, resp.length);
         h.getResponseBody().write(resp);
         h.close();
-    }
-}
-
-class LocalTimeTypeAdapter extends TypeAdapter<LocalDateTime> {
-
-    @Override
-    public void write(final JsonWriter jsonWriter, final LocalDateTime localTime) throws IOException {
-        if (localTime == null) {
-            jsonWriter.nullValue();
-            return;
-        }
-        jsonWriter.value(localTime.format(ISO_LOCAL_DATE_TIME));
-    }
-
-    @Override
-    public LocalDateTime read(final JsonReader jsonReader) throws IOException {
-        if (jsonReader.peek() == JsonToken.NULL) {
-            jsonReader.nextNull();
-            return null;
-        }
-        return LocalDateTime.parse(jsonReader.nextString(), ISO_LOCAL_DATE_TIME);
-    }
-}
-
-class DurationTypeAdapter extends TypeAdapter<Duration> {
-
-    @Override
-    public void write(final JsonWriter jsonWriter, final Duration duration) throws IOException {
-        if (duration == null) {
-            jsonWriter.nullValue();
-            return;
-        }
-        jsonWriter.value(duration.toMinutes());
-    }
-
-    @Override
-    public Duration read(final JsonReader jsonReader) throws IOException {
-        if (jsonReader.peek() == JsonToken.NULL) {
-            jsonReader.nextNull();
-            return null;
-        }
-
-        return Duration.ofMinutes(Integer.parseInt(jsonReader.nextString()));
     }
 }
