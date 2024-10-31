@@ -1,6 +1,5 @@
 package ru.practicum.task_trecker.server;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.task_trecker.exception.NotFoundException;
@@ -26,71 +25,32 @@ class TaskHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        Gson gson = HttpTaskServer.getGson();
-
         String uri = exchange.getRequestURI().getPath();
         String[] splitUri = uri.split("/");
-
         String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
 
         try {
-            switch (exchange.getRequestMethod()) {
-                case "GET": {
+            switch (requestType(exchange)) {
+                case request.GET: {
                     switch (splitUri[1]) {
                         case "tasks": {
-                            if (splitUri.length == 2) {
-                                sendText(exchange, gson.toJson(taskManager.getAllTasks()), 200);
-                                break;
-                            }
-                            if (splitUri.length == 3) {
-                                sendText(exchange, gson.toJson(taskManager.getTaskById(Integer.parseInt(splitUri[2]))), 200);
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует", 404);
+                            tasksGet(exchange, splitUri);
                             break;
                         }
                         case "epics": {
-                            if (splitUri.length == 2) {
-                                sendText(exchange, gson.toJson(taskManager.getAllEpics()), 200);
-                                break;
-                            }
-                            if (splitUri.length == 3) {
-                                sendText(exchange, gson.toJson(taskManager.getEpicById(Integer.parseInt(splitUri[2]))), 200);
-                                break;
-                            }
-                            if (splitUri.length == 4 && splitUri[3].equals("subtasks")) {
-                                sendText(exchange, gson.toJson(taskManager.getAllSubTaskById(Integer.parseInt(splitUri[2]))), 200);
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует", 404);
+                            epicsGet(exchange, splitUri);
                             break;
                         }
                         case "subtasks": {
-                            if (splitUri.length == 2) {
-                                sendText(exchange, gson.toJson(taskManager.getAllSubTasks()), 200);
-                                break;
-                            }
-                            if (splitUri.length == 3) {
-                                sendText(exchange, gson.toJson(taskManager.getSubTaskById(Integer.parseInt(splitUri[2]))), 200);
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует", 404);
+                            subtasksGet(exchange, splitUri);
                             break;
                         }
                         case "history": {
-                            if (splitUri.length == 2) {
-                                sendText(exchange, gson.toJson(taskManager.getTaskHistory()), 200);
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует", 404);
+                            historyGet(exchange, splitUri);
                             break;
                         }
                         case "prioritized": {
-                            if (splitUri.length == 2) {
-                                sendText(exchange, gson.toJson(taskManager.getPrioritizedTasks()), 200);
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует", 404);
+                            prioritizedGet(exchange, splitUri);
                             break;
                         }
                         default:
@@ -98,51 +58,18 @@ class TaskHandler implements HttpHandler {
                     }
                     break;
                 }
-                case "POST": {
+                case request.POST: {
                     switch (splitUri[1]) {
                         case "tasks": {
-                            Task task = gson.fromJson(body, Task.class);
-                            if (splitUri.length == 2) {
-                                if (task.getId() == null) {
-                                    taskManager.createTask(task);
-                                    sendText(exchange, "Добавление успешно.", 201);
-                                } else {
-                                    taskManager.updateTask(task);
-                                    sendText(exchange, "Обновление успешно.", 201);
-                                }
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует.", 404);
+                            tasksPost(exchange, splitUri, body);
                             break;
                         }
                         case "epics": {
-                            Epic epic = gson.fromJson(body, Epic.class);
-                            if (splitUri.length == 2) {
-                                if (epic.getId() == null) {
-                                    taskManager.createEpic(epic);
-                                    sendText(exchange, "Добавление успешно.", 201);
-                                } else {
-                                    taskManager.updateEpic(epic);
-                                    sendText(exchange, "Обновление успешно.", 201);
-                                }
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует.", 404);
+                            epicsPost(exchange, splitUri, body);
                             break;
                         }
                         case "subtasks": {
-                            Subtask subtask = gson.fromJson(body, Subtask.class);
-                            if (splitUri.length == 2) {
-                                if (subtask.getId() == null) {
-                                    taskManager.createSubTask(subtask);
-                                    sendText(exchange, "Добавление успешно.", 201);
-                                } else {
-                                    taskManager.updateSubTask(subtask);
-                                    sendText(exchange, "Обновление успешно.", 201);
-                                }
-                                break;
-                            }
-                            sendText(exchange, "Такого эндпоинта не существует.", 404);
+                            subtasksPost(exchange, splitUri, body);
                             break;
                         }
                         default:
@@ -150,24 +77,18 @@ class TaskHandler implements HttpHandler {
                     }
                     break;
                 }
-                case "DELETE": {
+                case request.DELETE: {
                     switch (splitUri[1]) {
                         case "tasks": {
-                            Integer id = Integer.parseInt(splitUri[2]);
-                            taskManager.deleteTaskById(id);
-                            sendText(exchange, "Удаление успешно.", 200);
+                            tasksDelete(exchange, splitUri);
                             break;
                         }
                         case "epics": {
-                            Integer id = Integer.parseInt(splitUri[2]);
-                            taskManager.deleteEpicById(id);
-                            sendText(exchange, "Удаление успешно.", 200);
+                            epicsDelete(exchange, splitUri);
                             break;
                         }
                         case "subtasks": {
-                            Integer id = Integer.parseInt(splitUri[2]);
-                            taskManager.deleteSubTaskById(id);
-                            sendText(exchange, "Удаление успешно.", 200);
+                            subtasksDelete(exchange, splitUri);
                             break;
                         }
                         default:
@@ -187,6 +108,139 @@ class TaskHandler implements HttpHandler {
         }
     }
 
+    protected void tasksGet(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+
+        if (splitUri.length == 2) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getAllTasks()), 200);
+            return;
+        }
+        if (splitUri.length == 3) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getTaskById(Integer.parseInt(splitUri[2]))), 200);
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует", 404);
+    }
+
+    protected void epicsGet(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+
+        if (splitUri.length == 2) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getAllEpics()), 200);
+            return;
+        }
+        if (splitUri.length == 3) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getEpicById(Integer.parseInt(splitUri[2]))), 200);
+            return;
+        }
+        if (splitUri.length == 4 && splitUri[3].equals("subtasks")) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getAllSubTaskById(Integer.parseInt(splitUri[2]))), 200);
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует", 404);
+    }
+
+    protected void subtasksGet(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+
+        if (splitUri.length == 2) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getAllSubTasks()), 200);
+            return;
+        }
+        if (splitUri.length == 3) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getSubTaskById(Integer.parseInt(splitUri[2]))), 200);
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует", 404);
+    }
+
+    protected void historyGet(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+
+        if (splitUri.length == 2) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getTaskHistory()), 200);
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует", 404);
+    }
+
+    protected void prioritizedGet(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+
+        if (splitUri.length == 2) {
+            sendText(exchange, HttpTaskServer.getGson().toJson(taskManager.getPrioritizedTasks()), 200);
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует", 404);
+    }
+
+    protected void tasksPost(HttpExchange exchange, String[] splitUri, String body) throws NotFoundException, IOException {
+
+        Task task = HttpTaskServer.getGson().fromJson(body, Task.class);
+        if (splitUri.length == 2) {
+            if (task.getId() == null) {
+                taskManager.createTask(task);
+                sendText(exchange, "Добавление успешно.", 201);
+            } else {
+                taskManager.updateTask(task);
+                sendText(exchange, "Обновление успешно.", 201);
+            }
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует.", 404);
+    }
+
+    protected void epicsPost(HttpExchange exchange, String[] splitUri, String body) throws NotFoundException, IOException {
+
+        Epic epic = HttpTaskServer.getGson().fromJson(body, Epic.class);
+        if (splitUri.length == 2) {
+            if (epic.getId() == null) {
+                taskManager.createEpic(epic);
+                sendText(exchange, "Добавление успешно.", 201);
+            } else {
+                taskManager.updateEpic(epic);
+                sendText(exchange, "Обновление успешно.", 201);
+            }
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует.", 404);
+    }
+
+    protected void subtasksPost(HttpExchange exchange, String[] splitUri, String body) throws NotFoundException, IOException {
+
+        Subtask subtask = HttpTaskServer.getGson().fromJson(body, Subtask.class);
+        if (splitUri.length == 2) {
+            if (subtask.getId() == null) {
+                taskManager.createSubTask(subtask);
+                sendText(exchange, "Добавление успешно.", 201);
+            } else {
+                taskManager.updateSubTask(subtask);
+                sendText(exchange, "Обновление успешно.", 201);
+            }
+            return;
+        }
+        sendText(exchange, "Такого эндпоинта не существует.", 404);
+    }
+
+    protected void tasksDelete(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+        if (splitUri.length == 3) {
+            Integer id = Integer.parseInt(splitUri[2]);
+            taskManager.deleteTaskById(id);
+            sendText(exchange, "Удаление успешно.", 200);
+        }
+    }
+
+    protected void epicsDelete(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+        if (splitUri.length == 3) {
+            Integer id = Integer.parseInt(splitUri[2]);
+            taskManager.deleteEpicById(id);
+            sendText(exchange, "Удаление успешно.", 200);
+        }
+    }
+
+    protected void subtasksDelete(HttpExchange exchange, String[] splitUri) throws NotFoundException, IOException {
+        if (splitUri.length == 3) {
+            Integer id = Integer.parseInt(splitUri[2]);
+            taskManager.deleteSubTaskById(id);
+            sendText(exchange, "Удаление успешно.", 200);
+        }
+    }
+
     protected void sendText(HttpExchange h, String text, int rCode) throws IOException {
         byte[] resp = text.getBytes(StandardCharsets.UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
@@ -194,4 +248,20 @@ class TaskHandler implements HttpHandler {
         h.getResponseBody().write(resp);
         h.close();
     }
+
+    protected request requestType(HttpExchange exchange) {
+
+        String req = exchange.getRequestMethod();
+
+        return switch (req) {
+            case "GET" -> request.GET;
+            case "POST" -> request.POST;
+            case "DELETE" -> request.DELETE;
+            default -> request.NONE;
+        };
+    }
+
+    enum request {GET, POST, DELETE, NONE}
+
+
 }
