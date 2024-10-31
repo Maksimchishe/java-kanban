@@ -31,7 +31,7 @@ class TaskHandler implements HttpHandler {
 
         try {
             switch (requestType(exchange)) {
-                case request.GET: {
+                case Request.GET: {
                     switch (splitUri[1]) {
                         case "tasks": {
                             tasksGet(exchange, splitUri);
@@ -58,7 +58,7 @@ class TaskHandler implements HttpHandler {
                     }
                     break;
                 }
-                case request.POST: {
+                case Request.POST: {
                     switch (splitUri[1]) {
                         case "tasks": {
                             tasksPost(exchange, splitUri, body);
@@ -77,7 +77,7 @@ class TaskHandler implements HttpHandler {
                     }
                     break;
                 }
-                case request.DELETE: {
+                case Request.DELETE: {
                     switch (splitUri[1]) {
                         case "tasks": {
                             tasksDelete(exchange, splitUri);
@@ -249,19 +249,20 @@ class TaskHandler implements HttpHandler {
         h.close();
     }
 
-    protected request requestType(HttpExchange exchange) {
+    protected Request requestType(HttpExchange exchange) {
 
         String req = exchange.getRequestMethod();
 
         return switch (req) {
-            case "GET" -> request.GET;
-            case "POST" -> request.POST;
-            case "DELETE" -> request.DELETE;
-            default -> request.NONE;
+            case "GET" -> Request.GET;
+            case "POST" -> Request.POST;
+            case "DELETE" -> Request.DELETE;
+            default -> Request.NONE;
         };
     }
 
-    enum request {GET, POST, DELETE, NONE}
+    enum Request { GET, POST, DELETE, NONE }
 
 
 }
+
