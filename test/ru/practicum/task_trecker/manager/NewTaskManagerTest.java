@@ -1,11 +1,13 @@
 package ru.practicum.task_trecker.manager;
 
 import org.junit.jupiter.api.Test;
+import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Status;
 import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NewTaskManagerTest extends TaskManagerTest {
 
     @Test
-    void TestStatusEpicToAllSubtasksWithTheNewStatus() {
+    void TestStatusEpicToAllSubtasksWithTheNewStatus() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -27,7 +29,7 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestStatusEpicToAllSubtasksWithTheDoneStatus() {
+    void TestStatusEpicToAllSubtasksWithTheDoneStatus() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -41,7 +43,7 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestStatusEpicToAllSubtasksWithTheNewAndDoneStatus() {
+    void TestStatusEpicToAllSubtasksWithTheNewAndDoneStatus() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -59,7 +61,7 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestStatusEpicToAllSubtasksWithTheInProgressStatus() {
+    void TestStatusEpicToAllSubtasksWithTheInProgressStatus() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -73,7 +75,7 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestAvailabilityOfEpicForSubTask() {
+    void TestAvailabilityOfEpicForSubTask() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -87,28 +89,27 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestThePresenceOfTheIntersectionOfTimeSegments() {
+    void TestThePresenceOfTheIntersectionOfTimeSegments() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
-        Task newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 0, 0), 10));
+        taskManager.delAllTask();
+
+        Task newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 0, 0), Duration.ofMinutes(10)));
         assertNotNull(newTask1, "Наличие пересечения временных отрезков.");
 
-        Task newTask2 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 0, 55, 0), 10));
-        assertNull(newTask2, "Ошибка определения пересечения временных отрезков StartTime существующего Task.");
+        assertThrows(NotFoundException.class, () -> {
+            Task newTask2 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 0, 55, 0), Duration.ofMinutes(10)));
+        });
 
-        Task newTask3 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 30, 0), 10));
-        assertNotNull(newTask3, "Наличие пересечения временных отрезков.");
+        Task newTask3 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 30, 0), Duration.ofMinutes(10)));
 
-        Task newTask4 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 35, 0), 10));
-        assertNull(newTask4, "Ошибка определения пересечения временных отрезков EndTime существующего Task.");
-
-        Task newTask5 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 15, 0), 10));
-        assertNotNull(newTask5, "Наличие пересечения временных отрезков.");
-
+        assertThrows(NotFoundException.class, () -> {
+            Task newTask4 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 35, 0), Duration.ofMinutes(10)));
+        });
     }
 
     @Test
-    void TestEmptyTaskHistory() {
+    void TestEmptyTaskHistory() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         assertTrue(taskManager.getTaskHistory().isEmpty(), "История задач не пуста.");
@@ -116,10 +117,12 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestDuplicationInTheTaskHistory() {
+    void TestDuplicationInTheTaskHistory() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
-        Task newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 0, 0), 10));
+        taskManager.delAllTask();
+
+        Task newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, 1, 0, 0), Duration.ofMinutes(10)));
         taskManager.getTaskById(newTask1.getId());
         taskManager.getTaskById(newTask1.getId());
         taskManager.getTaskById(newTask1.getId());
@@ -133,13 +136,15 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestDeletingTheFirstItemInTheTaskHistory() {
+    void TestDeletingTheFirstItemInTheTaskHistory() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
+        taskManager.delAllTask();
+
         Task newTask1 = null;
         for (int i = 1; i <= 5; i++) {
-            newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, i, 0, 0), 10));
+            newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, i, 0, 0), Duration.ofMinutes(10)));
             historyManager.add(newTask1);
         }
         assertEquals(5, historyManager.getHistory().size(), "Неверное количество задач.");
@@ -150,13 +155,15 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestDeletingTheLastItemInTheTaskHistory() {
+    void TestDeletingTheLastItemInTheTaskHistory() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
+        taskManager.delAllTask();
+
         Task newTask1 = null;
         for (int i = 1; i <= 5; i++) {
-            newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, i, 0, 0), 10));
+            newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, i, 0, 0), Duration.ofMinutes(10)));
             historyManager.add(newTask1);
         }
         assertEquals(5, historyManager.getHistory().size(), "Неверное количество задач.");
@@ -167,13 +174,13 @@ public class NewTaskManagerTest extends TaskManagerTest {
     }
 
     @Test
-    void TestDeletingTheNextItemInTheTaskHistory() {
+    void TestDeletingTheNextItemInTheTaskHistory() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
 
         Task newTask1 = null;
         for (int i = 1; i <= 5; i++) {
-            newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, i, 0, 0), 10));
+            newTask1 = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW, LocalDateTime.of(2024, 10, 8, i, 0, 0), Duration.ofMinutes(10)));
             historyManager.add(newTask1);
         }
         assertEquals(5, historyManager.getHistory().size(), "Неверное количество задач.");
@@ -185,7 +192,7 @@ public class NewTaskManagerTest extends TaskManagerTest {
 
 
     @Test
-    public void TestExceptionLoadFromFile() {
+    public void TestExceptionLoadFromFile() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         assertDoesNotThrow(taskManager::loadFromFile, "Ошибка loadFromFile()");

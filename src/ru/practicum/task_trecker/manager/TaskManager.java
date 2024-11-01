@@ -1,5 +1,6 @@
 package ru.practicum.task_trecker.manager;
 
+import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Subtask;
 import ru.practicum.task_trecker.task.Task;
@@ -11,31 +12,31 @@ public interface TaskManager {
 
     TreeSet<Task> getPrioritizedTasks();
 
-    boolean validationTimeTask(Task task);
+    boolean validationTimeTask(Task task) throws NotFoundException;
 
     List<Task> getTaskHistory();
 
-    <T> void saveInHistory(T task);
+    <T> void saveInHistory(T task) throws NotFoundException;
 
-    Task createTask(Task task);
+    Task createTask(Task task) throws NotFoundException;
 
-    Epic createEpic(Epic epic);
+    Epic createEpic(Epic epic) throws NotFoundException;
 
-    Subtask createSubTask(Subtask subTask);
+    Subtask createSubTask(Subtask subTask) throws NotFoundException;
 
-    Task updateTask(Task task);
+    Task updateTask(Task task) throws NotFoundException;
 
-    Epic updateEpic(Epic epic);
+    Epic updateEpic(Epic epic) throws NotFoundException;
 
-    Subtask updateSubTask(Subtask subTask);
+    Subtask updateSubTask(Subtask subTask) throws NotFoundException;
 
-    Task getTaskById(Integer id);
+    Task getTaskById(Integer id) throws NotFoundException;
 
-    Epic getEpicById(Integer id);
+    Epic getEpicById(Integer id) throws NotFoundException;
 
-    Subtask getSubTaskById(Integer id);
+    Subtask getSubTaskById(Integer id) throws NotFoundException;
 
-    List<Subtask> getAllSubTaskById(Integer idEpic);
+    List<Subtask> getAllSubTaskById(Integer idEpic) throws NotFoundException;
 
     List<Task> getAllTasks();
 
@@ -43,23 +44,23 @@ public interface TaskManager {
 
     List<Subtask> getAllSubTasks();
 
-    boolean deleteTaskById(Integer id);
+    boolean deleteTaskById(Integer id) throws NotFoundException;
 
-    boolean deleteEpicById(Integer id);
+    boolean deleteEpicById(Integer id) throws NotFoundException;
 
-    boolean deleteSubTaskById(Integer id);
+    boolean deleteSubTaskById(Integer id) throws NotFoundException;
 
     void delAllTask();
 
     void delAllEpic();
 
-    void deleteAllSubTasksByEpicId(Integer id);
+    void deleteAllSubTasksByEpicId(Integer id) throws NotFoundException;
 
     void delAllSubTask();
 
-    void loadFromFile();
+    void loadFromFile() throws NotFoundException;
 
-    void updateSubTaskToEpic(Integer idEpic);
+    void updateSubTaskToEpic(Integer idEpic) throws NotFoundException;
 
 }
 

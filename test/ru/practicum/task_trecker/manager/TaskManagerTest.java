@@ -1,6 +1,7 @@
 package ru.practicum.task_trecker.manager;
 
 import org.junit.jupiter.api.Test;
+import ru.practicum.task_trecker.exception.NotFoundException;
 import ru.practicum.task_trecker.task.Epic;
 import ru.practicum.task_trecker.task.Status;
 import ru.practicum.task_trecker.task.Subtask;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 abstract class TaskManagerTest {
 
     @Test
-    void managersTest() {
+    void managersTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         assertInstanceOf(InMemoryTaskManager.class, taskManager, "Класс не является экземпляром менеджера.");
 
@@ -22,7 +23,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void inMemoryHistoryManagerUsesAllTypeClassTest() {
+    void inMemoryHistoryManagerUsesAllTypeClassTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         for (int i = 0; i < 5; i++) {
@@ -51,7 +52,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void inMemoryHistoryManagerSavePreviousVersionTaskTest() {
+    void inMemoryHistoryManagerSavePreviousVersionTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
@@ -68,7 +69,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void createAndUpdateTaskTest() {
+    void createAndUpdateTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
         assertNotNull(newTask, "Задача не найдена.");
@@ -84,7 +85,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void createAndUpdateEpicTest() {
+    void createAndUpdateEpicTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
         assertNotNull(newEpic, "Задача не найдена.");
@@ -100,7 +101,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void createAndUpdateSubTaskTest() {
+    void createAndUpdateSubTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
         Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование", "Пояснение", Status.NEW));
@@ -118,7 +119,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void createAndGetSubTaskById() {
+    void createAndGetSubTaskById() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
         assertNotNull(newEpic, "Задача не найдена.");
@@ -134,7 +135,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void checkingForMatchingFieldsForTask() {
+    void checkingForMatchingFieldsForTask() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
 
@@ -144,7 +145,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void checkingForMatchingFieldsForEpic() {
+    void checkingForMatchingFieldsForEpic() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
 
@@ -154,7 +155,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void checkingForMatchingFieldsForSubTask() {
+    void checkingForMatchingFieldsForSubTask() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
         Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование", "Пояснение", Status.NEW));
@@ -166,7 +167,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void deleteTaskByIdTest() {
+    void deleteTaskByIdTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
         assertNotNull(newTask, "Задача не найдена.");
@@ -174,7 +175,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void deleteEpicByIdTest() {
+    void deleteEpicByIdTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
         assertNotNull(newEpic, "Задача не найдена.");
@@ -182,7 +183,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void deleteSubTaskByIdTest() {
+    void deleteSubTaskByIdTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
         Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
         Subtask newSubTask = taskManager.createSubTask(new Subtask(newEpic.getId(), "Наименование", "Пояснение", Status.NEW));
@@ -192,8 +193,10 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void deleteAllTaskTest() {
+    void deleteAllTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
+
+        taskManager.delAllTask();
 
         for (int i = 0; i < 5; i++) {
             Task newTask = taskManager.createTask(new Task("Наименование", "Пояснение", Status.NEW));
@@ -205,8 +208,10 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void deleteAllSubEpicTest() {
+    void deleteAllSubEpicTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
+
+        taskManager.delAllEpic();
 
         for (int i = 0; i < 5; i++) {
             Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -218,8 +223,10 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void deleteAllSubTaskTest() {
+    void deleteAllSubTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
+
+        taskManager.delAllSubTask();
 
         for (int i = 0; i < 5; i++) {
             Epic newEpic = taskManager.createEpic(new Epic("Наименование", "Пояснение", Status.NEW));
@@ -237,8 +244,10 @@ abstract class TaskManagerTest {
 /////////////////////Финальное задание №6///////////////////////
 
     @Test
-    void historyAddAndDeleteTaskTest() {
+    void historyAddAndDeleteTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
+
+        taskManager.delAllTask();
 
         for (int i = 0; i < 5; i++) {
             taskManager.createTask(new Task("Задача", "Пояснение", Status.NEW));
@@ -268,8 +277,10 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void historyAddAndDeleteEpicTest() {
+    void historyAddAndDeleteEpicTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
+
+        taskManager.delAllEpic();
 
         for (int i = 0; i < 5; i++) {
             taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));
@@ -299,7 +310,7 @@ abstract class TaskManagerTest {
     }
 
     @Test
-    void historyAddAndDeleteSubTaskTest() {
+    void historyAddAndDeleteSubTaskTest() throws NotFoundException {
         TaskManager taskManager = Managers.getDefault();
 
         Epic testEpic = taskManager.createEpic(new Epic("Задача", "Пояснение", Status.NEW));

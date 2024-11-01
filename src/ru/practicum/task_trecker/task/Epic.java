@@ -1,13 +1,6 @@
 package ru.practicum.task_trecker.task;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 public class Epic extends Task {
-
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private Duration duration = Duration.ZERO;
 
     public Epic(String name, String description, Status status) {
         super(name, description, status);
@@ -18,47 +11,12 @@ public class Epic extends Task {
     }
 
     @Override
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    @Override
-    public Duration getDuration() {
-        return duration;
-    }
-
-    @Override
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public void setDuration(Duration duration) {
-        this.duration = duration;
-    }
-
-    @Override
     public Type getType() {
         return Type.EPIC;
     }
 
     @Override
     public String toString() {
-        return "Epic{" +
-                "id='" + this.getId() + '\'' +
-                ", name='" + this.getName() + '\'' +
-                ", description='" + this.getDescription() + '\'' +
-                ", status='" + this.getStatus() + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", duration='" + duration + '\'' +
-                '}';
+        return "Epic{id='%d', name='%s', description='%s', status='%s', startTime='%s', endTime='%s', duration='%s'}".formatted(this.getId(), this.getName(), this.getDescription(), this.getStatus(), super.getStartTime(), super.getEndTimeEpic(), super.getDuration());
     }
 }
